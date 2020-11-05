@@ -1,7 +1,7 @@
 """Custom Logging Module."""
 import logging
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from .hive_data import Data
 
 _LOGGER = logging.getLogger(__name__)
@@ -12,6 +12,7 @@ class Logger:
 
     def __init__(self):
         """Logger Initialization"""
+        self.last_logged = None
 
     @staticmethod
     async def check_debuging(enable_debug: list):
@@ -63,18 +64,19 @@ class Logger:
 
     async def error_check(self, n_id, n_type, error_type, **kwargs):
         """Error has occurred."""
+        time = datetime.now()
         message = None
         new_data = None
         result = False
         if error_type == False:
             message = "Device offline could not update entity."
             result = True
-            if not Data.s_file:
+            if Data.s_file and time > self.last_logged + timedelta(hours=1):
                 _LOGGER.warning(message)
         elif error_type == "Failed":
             message = "ERROR - No data found for device."
             result = True
-            if not Data.s_file:
+            if Data.s_file and time > self.last_logged + timedelta(hours=1):
                 _LOGGER.error(message)
         elif error_type == "Failed_API":
             new_data = str(kwargs.get("resp"))

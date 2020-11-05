@@ -120,7 +120,7 @@ class Session:
             expiry_time = Data.s_token_update + TOKEN_EXPIRY
             if datetime.now() >= expiry_time or Data.s_entity_update_flag == "Y":
                 await self.log.log("No_ID", self.type, "Attempting to refresh tokens.")
-                resp_p = await self.hive.refresh_tokens(Data.s_tokens)
+                resp_p = await self.hive.refresh_tokens()
 
                 if resp_p["original"] == 200:
                     info = resp_p["parsed"]
