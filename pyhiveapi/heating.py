@@ -141,7 +141,7 @@ class Heating:
                 state = Data.p_minmax[device["hive_id"]]
                 await self.log.log(device["hive_id"], "Extra", "Min/Max is {0}", info=state)
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = state
             Data.NODES[device["hive_id"]]["minmax"] = final
@@ -165,7 +165,7 @@ class Heating:
                 await self.log.log(device["hive_id"], "Extra",
                                    "Target temp is {0}", info=str(state))
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = state
             Data.NODES[device["hive_id"]]["TargetTemp"] = final
@@ -190,7 +190,7 @@ class Heating:
                     state = data["props"]["previous"]["mode"]
                 await self.log.log(device["hive_id"], "Extra", "Mode is {0}", info=str(state))
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["Mode"] = final
@@ -216,7 +216,7 @@ class Heating:
                     state = "OFF"
                 await self.log.log(device["hive_id"], "Extra", "State is {0}", info=str(state))
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
@@ -239,7 +239,7 @@ class Heating:
                 await self.log.log(device["hive_id"], "Extra",
                                    "Current operation is {0}", info=str(state))
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = state
             Data.NODES[device["hive_id"]]["Current_Operation"] = final
@@ -263,7 +263,7 @@ class Heating:
                 await self.log.log(device["hive_id"], "Extra",
                                    "Boost state is {0}", info=str(state))
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = state
             Data.NODES[device["hive_id"]]["Boost"] = final
@@ -288,7 +288,7 @@ class Heating:
                         device["hive_id"], self.type, "Time left on boost is {0}", info=str(state)
                     )
                     if device["hive_id"] in Data. s_error_list:
-                        Data. s_error_list.popitem(device["hive_id"])
+                        Data. s_error_list.pop(device["hive_id"])
                 await self.log.error_check(device["hive_id"], "Extra", online)
                 final = state
                 Data.NODES[device["hive_id"]]["Boost_Time"] = final
@@ -323,7 +323,7 @@ class Heating:
             final = state
             Data.NODES[device["hive_id"]]["snnl"] = final
             if device["hive_id"] in Data. s_error_list:
-                Data. s_error_list.popitem(device["hive_id"])
+                Data. s_error_list.pop(device["hive_id"])
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 

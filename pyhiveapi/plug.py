@@ -65,7 +65,7 @@ class Plug():
                 state = data["state"]["status"]
                 await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=state)
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA["Switch"].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
@@ -88,7 +88,7 @@ class Plug():
                 await self.log.log(device["hive_id"], "Extra",
                                    "Power consumption is {0}", info=state)
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = state
             Data.NODES[device["hive_id"]]["Power"] = final

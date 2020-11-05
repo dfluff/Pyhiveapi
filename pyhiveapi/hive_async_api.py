@@ -1,6 +1,5 @@
 """Hive API Module."""
-import asyncio
-from .hive_exceptions import FileInUse
+from .hive_exceptions import FileInUse, NoApiToken
 
 from aiohttp import ClientSession, ClientResponse
 from typing import Optional
@@ -37,14 +36,15 @@ class Hive_Async:
             "parsed": "No response to Hive API request",
         }
         self.websession = ClientSession = websession
-        self.api_lock = asyncio.Lock()
 
     async def request(self, method: str, url: str, **kwargs) -> ClientResponse:
         """Make a request."""
-        if self.api_lock.locked():
-            return True
+        try:
+            self.headers.update(
+                {"authorization": Data.s_tokens.get("token")})
+        except KeyError:
+            raise NoApiToken
 
-        await self.api_lock.acquire()
         data = kwargs.get('data', None)
         await self.log.log(
             'API', 'API', ("Request is - {0}:{1}".format(method, url)))
@@ -54,8 +54,6 @@ class Hive_Async:
                 self.json_return.update({"original": resp.status})
                 self.json_return.update({"parsed": await resp.json(content_type=None)})
                 await self.log.log('API', 'API', "Response is - " + str(resp.status))
-
-        self.api_lock.release()
 
     async def login(self, username, password):
         """Login to the Hive API."""

@@ -341,8 +341,6 @@ class Session:
             return "UNKNOWN_CONFIGURATION"
 
         try:
-            self.hive.headers.update(
-                {"authorization": Data.s_tokens.get("token")})
             await self.get_devices("No_ID")
             await self.get_weather()
         except HTTPException:

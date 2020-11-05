@@ -74,7 +74,7 @@ class Light:
                 state = data["state"]["status"]
                 await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=state)
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
@@ -98,7 +98,7 @@ class Light:
                 Data.NODES[device["hive_id"]]["Brightness"] = final
                 await self.log.log(device["hive_id"], "Extra", "Brightness is {0}", info=final)
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
@@ -121,7 +121,7 @@ class Light:
                 await self.log.log(device["hive_id"], "Extra",
                                    "Min colour temp is {0}", info=final)
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
@@ -144,7 +144,7 @@ class Light:
                 await self.log.log(device["hive_id"], "Extra",
                                    "Max colour temp is {0}", info=final)
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
@@ -166,7 +166,7 @@ class Light:
                 Data.NODES[device["hive_id"]]["CT"] = final
                 await self.log.log(device["hive_id"], "Extra", "Colour temp is {0}", info=final)
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
 
         else:
@@ -195,7 +195,7 @@ class Light:
                 )
                 Data.NODES[device["hive_id"]]["Colour"] = final
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")

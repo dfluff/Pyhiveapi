@@ -1,5 +1,6 @@
 """Hive Sensor Module."""
-import asyncio
+from aiohttp import ClientSession
+from typing import Optional
 from .hive_data import Data
 from .custom_logging import Logger
 from .device_attributes import Attributes
@@ -12,14 +13,14 @@ from .hotwater import Hotwater
 class Sensor:
     """Hive Sensor Code."""
 
-    def __init__(self):
+    def __init__(self, websession: Optional[ClientSession] = None):
         """Initialise."""
         self.log = Logger()
         self.attributes = Attributes()
         self.weather = Weather()
         self.hub = Hub()
-        self.heating = Heating()
-        self.hotwater = Hotwater()
+        self.heating = Heating(websession)
+        self.hotwater = Hotwater(websession)
         self.type = "Sensor"
 
     async def get_sensor(self, device):
@@ -84,7 +85,7 @@ class Sensor:
                 final = Data.HIVETOHA[self.type].get(state, state)
                 await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=final)
                 if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.popitem(device["hive_id"])
+                    Data. s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
@@ -108,7 +109,7 @@ class Sensor:
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
             if device["hive_id"] in Data. s_error_list:
-                Data. s_error_list.popitem(device["hive_id"])
+                Data. s_error_list.pop(device["hive_id"])
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 
