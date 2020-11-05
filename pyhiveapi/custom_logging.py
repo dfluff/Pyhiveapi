@@ -3,6 +3,7 @@ import logging
 
 from datetime import datetime, timedelta
 from .hive_data import Data
+from.helper import Hive_Helper
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,11 +30,8 @@ class Logger:
     @staticmethod
     async def log(n_id, l_type, new_message, **kwargs):
         """Output new log entry if logging is turned on."""
-        product_data = Data.products.get(n_id, {})
-        name = product_data.get("state", {}).get("name", n_id)
+        name = Hive_Helper.get_device_name(n_id)
         data = kwargs.get("info", None)
-        if n_id == "No_ID":
-            name = "Hive"
         if "_" in l_type:
             nxt = l_type.split("_")
             for i in nxt:
@@ -67,7 +65,7 @@ class Logger:
         message = None
         new_data = None
         result = False
-        name = Data.products[n_id].get("state", {}).get("name", "UNKNOWN")
+        name = Hive_Helper.get_device_name(n_id)
 
         if error_type == False:
             message = "Device offline could not update entity - " + name
