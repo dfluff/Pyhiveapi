@@ -13,7 +13,7 @@ def requirements_from_file(filename='requirements.txt'):
 
 setup(
     name="pyhiveapi",
-    version="0.3_b8",
+    version="0.3_b9",
     description="A Python library to interface with the Hive API",
     long_description="A Python library to interface with the Hive API",
     url="https://github.com/Pyhive/pyhiveapi",
