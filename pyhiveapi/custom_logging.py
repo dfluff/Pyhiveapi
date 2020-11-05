@@ -45,7 +45,7 @@ class Logger:
                 _LOGGER.debug(new_message.format(data))
 
             try:
-                l_file = open(Data.l_o_file, "a")
+                l_file = open(Data.d_o_file, "a")
                 l_file.write(
                     datetime.now().strftime("%d-%b-%Y %H:%M:%S")
                     + " - "
@@ -64,20 +64,23 @@ class Logger:
 
     async def error_check(self, n_id, n_type, error_type, **kwargs):
         """Error has occurred."""
-        time = datetime.now()
         message = None
         new_data = None
         result = False
+        name = Data.products[n_id].get("state", {}).get("name", "UNKNOWN")
+
         if error_type == False:
-            message = "Device offline could not update entity."
+            message = "Device offline could not update entity - " + name
             result = True
-            if Data.s_file and time > self.last_logged + timedelta(hours=1):
+            if Data.s_file and n_id not in Data. s_error_list:
                 _LOGGER.warning(message)
+                Data. s_error_list.update({n_id: datetime.now()})
         elif error_type == "Failed":
-            message = "ERROR - No data found for device."
+            message = "ERROR - No data found for device - " + name
             result = True
-            if Data.s_file and time > self.last_logged + timedelta(hours=1):
+            if Data.s_file and n_id not in Data. s_error_list:
                 _LOGGER.error(message)
+                Data. s_error_list.update({n_id: datetime.now()})
         elif error_type == "Failed_API":
             new_data = str(kwargs.get("resp"))
             message = "ERROR - Received {0} response from API."

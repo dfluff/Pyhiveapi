@@ -73,6 +73,8 @@ class Light:
                 data = Data.products[device["hive_id"]]
                 state = data["state"]["status"]
                 await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=state)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
@@ -95,6 +97,8 @@ class Light:
                 final = (state / 100) * 255
                 Data.NODES[device["hive_id"]]["Brightness"] = final
                 await self.log.log(device["hive_id"], "Extra", "Brightness is {0}", info=final)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
@@ -109,12 +113,15 @@ class Light:
         final = None
 
         if device["hive_id"] in Data.products:
-            data = Data.products[device["hive_id"]]
-            state = data["props"]["colourTemperature"]["max"]
-            final = round((1 / state) * 1000000)
-            Data.NODES[device["hive_id"]]["Min_CT"] = final
-            await self.log.log(device["hive_id"], "Extra",
-                               "Min colour temp is {0}", info=final)
+            if online:
+                data = Data.products[device["hive_id"]]
+                state = data["props"]["colourTemperature"]["max"]
+                final = round((1 / state) * 1000000)
+                Data.NODES[device["hive_id"]]["Min_CT"] = final
+                await self.log.log(device["hive_id"], "Extra",
+                                   "Min colour temp is {0}", info=final)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
@@ -129,12 +136,15 @@ class Light:
         final = None
 
         if device["hive_id"] in Data.products:
-            data = Data.products[device["hive_id"]]
-            state = data["props"]["colourTemperature"]["min"]
-            final = round((1 / state) * 1000000)
-            Data.NODES[device["hive_id"]]["Max_CT"] = final
-            await self.log.log(device["hive_id"], "Extra",
-                               "Max colour temp is {0}", info=final)
+            if online:
+                data = Data.products[device["hive_id"]]
+                state = data["props"]["colourTemperature"]["min"]
+                final = round((1 / state) * 1000000)
+                Data.NODES[device["hive_id"]]["Max_CT"] = final
+                await self.log.log(device["hive_id"], "Extra",
+                                   "Max colour temp is {0}", info=final)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
@@ -155,7 +165,10 @@ class Light:
                 final = round((1 / state) * 1000000)
                 Data.NODES[device["hive_id"]]["CT"] = final
                 await self.log.log(device["hive_id"], "Extra", "Colour temp is {0}", info=final)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
+
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 
@@ -181,6 +194,8 @@ class Light:
                     for i in colorsys.hsv_to_rgb(state[0], state[1], state[2])
                 )
                 Data.NODES[device["hive_id"]]["Colour"] = final
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")

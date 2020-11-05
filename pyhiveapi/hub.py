@@ -28,6 +28,8 @@ class Hub:
                 state = data["props"]["sensors"]["SMOKE_CO"]["active"]
                 final = Data.HIVETOHA[self.type]["Smoke"].get(state, state)
                 await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=final)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", final)
             final = Data.HIVETOHA[self.type]["Smoke"].get(state, state)
             Data.NODES[device["hive_id"]]["Smoke"] = final
@@ -49,6 +51,8 @@ class Hub:
                 state = data["props"]["sensors"]["DOG_BARK"]["active"]
                 final = Data.HIVETOHA[self.type]["Dog"].get(state, state)
                 await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=final)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", final)
             final = Data.HIVETOHA[self.type]["Dog"].get(state, state)
             Data.NODES[device["hive_id"]]["Dog"] = final
@@ -70,6 +74,8 @@ class Hub:
                 state = data["props"]["sensors"]["GLASS_BREAK"]["active"]
                 final = Data.HIVETOHA[self.type]["Glass"].get(state, state)
                 await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=final)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", final)
             final = Data.HIVETOHA[self.type]["Glass"].get(state, state)
             Data.NODES[device["hive_id"]]["Glass"] = final

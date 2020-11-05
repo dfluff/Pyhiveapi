@@ -66,6 +66,8 @@ class Hotwater:
                     state = data["props"]["previous"]["mode"]
                 final = Data.HIVETOHA[self.type].get(state, state)
                 await self.log.log(device["hive_id"], "Extra", "Mode is {0}", info=final)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["Mode"] = final
@@ -92,6 +94,8 @@ class Hotwater:
                 state = data["state"]["boost"]
                 final = Data.HIVETOHA["Boost"].get(state, "ON")
                 await self.log.log(device["hive_id"], "Extra", "Boost is {0}", info=final)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA["Boost"].get(state, "ON")
             Data.NODES[device["hive_id"]]["Boost"] = final
@@ -102,10 +106,12 @@ class Hotwater:
 
     async def get_boost_time(self, device):
         """Get hotwater boost time remaining."""
+        online = None
+        state = None
         if await self.get_boost(device["hive_id"]) == "ON":
             await self.log.log(device["hive_id"], "Extra", "Getting boost time")
             online = await self.attr.online_offline(device["hive_id"])
-            state = None
+
         final = None
 
         if device["hive_id"] in Data.products:
@@ -114,6 +120,8 @@ class Hotwater:
                 state = data["state"]["boost"]
                 await self.log.log(device["hive_id"], "Extra",
                                    "Boost time is {0}", info=state)
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = state
             Data.NODES[device["hive_id"]]["Boost_Time"] = final
@@ -142,6 +150,8 @@ class Hotwater:
                             data["state"]["schedule"]
                         )
                         state = snan["now"]["value"]["status"]
+                if device["hive_id"] in Data. s_error_list:
+                    Data. s_error_list.popitem(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
@@ -168,6 +178,8 @@ class Hotwater:
                 Data.NODES[device["hive_id"]]["snnl"] = final
                 await self.log.log(device["hive_id"], "Extra", "Schedule is {0}", info=final)
             await self.log.error_check(device["hive_id"], "Extra", online)
+            if device["hive_id"] in Data. s_error_list:
+                Data. s_error_list.popitem(device["hive_id"])
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 

@@ -71,6 +71,7 @@ class Data:
     s_sensors = False
     s_last_update = datetime.datetime(2017, 1, 1, 12, 0, 0)
     s_file = False
+    s_error_list = {}
 
     # Weather data
     w_last_update = datetime.datetime(2017, 1, 1, 12, 0, 0)
