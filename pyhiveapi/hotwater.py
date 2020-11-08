@@ -24,7 +24,7 @@ class Hotwater:
     async def get_hotwater(self, device):
         """Get light data."""
         await self.log.log(device["hive_id"], self.type, "Getting hot water data.")
-        online = await self.attr.online_offline(device["hive_id"])
+        online = await self.attr.online_offline(device["device_id"])
         error = await self.log.error_check(device["hive_id"], self.type, online)
 
         dev_data = {}
@@ -54,7 +54,7 @@ class Hotwater:
     async def get_mode(self, device):
         """Get hotwater current mode."""
         await self.log.log(device["hive_id"], "Extra", "Getting mode")
-        online = await self.attr.online_offline(device["hive_id"])
+        online = await self.attr.online_offline(device["device_id"])
         state = None
         final = None
 
@@ -84,7 +84,7 @@ class Hotwater:
     async def get_boost(self, device):
         """Get hot water current boost status."""
         await self.log.log(device["hive_id"], "Extra", "Getting boost")
-        online = await self.attr.online_offline(device["hive_id"])
+        online = await self.attr.online_offline(device["device_id"])
         state = None
         final = None
 
@@ -110,7 +110,7 @@ class Hotwater:
         state = None
         if await self.get_boost(device["hive_id"]) == "ON":
             await self.log.log(device["hive_id"], "Extra", "Getting boost time")
-            online = await self.attr.online_offline(device["hive_id"])
+            online = await self.attr.online_offline(device["device_id"])
 
         final = None
 
@@ -133,7 +133,7 @@ class Hotwater:
     async def get_state(self, device):
         """Get hot water current state."""
         await self.log.log(device["hive_id"], "Extra", "Getting state")
-        online = await self.attr.online_offline(device["hive_id"])
+        online = await self.attr.online_offline(device["device_id"])
         state = None
         final = None
 
@@ -163,7 +163,7 @@ class Hotwater:
     async def get_schedule_now_next_later(self, device):
         """Hive get hotwater schedule now, next and later."""
         await self.log.log(device["hive_id"], "Extra", "Getting schedule info.")
-        online = await self.attr.online_offline(device["hive_id"])
+        online = await self.attr.online_offline(device["device_id"])
         state = None
         final = None
 

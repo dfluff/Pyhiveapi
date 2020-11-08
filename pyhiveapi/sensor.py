@@ -4,7 +4,6 @@ from typing import Optional
 from .hive_data import Data
 from .custom_logging import Logger
 from .device_attributes import Attributes
-from .weather import Weather
 from .hub import Hub
 from .heating import Heating
 from .hotwater import Hotwater
@@ -17,7 +16,6 @@ class Sensor:
         """Initialise."""
         self.log = Logger()
         self.attributes = Attributes()
-        self.weather = Weather()
         self.hub = Hub()
         self.heating = Heating(websession)
         self.hotwater = Hotwater(websession)

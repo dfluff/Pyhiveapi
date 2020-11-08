@@ -49,6 +49,7 @@ class Attributes:
             Data.NODES[n_id]["Availabile"] = final
             if n_id in Data. s_error_list:
                 Data. s_error_list.pop(n_id)
+            await self.log.log(n_id, "Extra", "Is the device online -  {0}", info=final)
         else:
             await self.log.error_check(n_id, "ERROR", "Failed")
 

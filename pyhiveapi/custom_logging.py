@@ -40,12 +40,14 @@ class Logger:
 
         if Data.d_enabled and new_message is not None and any(elem in Data.d_list for elem in [l_type, 'All']):
             if l_type != "ERROR":
-                _LOGGER.debug(new_message.format(data))
+                logging_data = name + new_message.format(data)
+                _LOGGER.debug(logging_data)
 
             try:
                 l_file = open(Data.d_o_file, "a")
                 l_file.write(
-                    datetime.now().strftime("%d-%b-%Y %H:%M:%S")
+                    datetime.now().strftime(
+                        "%d-%b-%Y %H:%M:%S")
                     + " - "
                     + l_type
                     + " - "

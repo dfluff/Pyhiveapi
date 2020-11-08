@@ -55,8 +55,7 @@ class Data:
         "Battery": 'self.attributes.battery(device["device_id"])',
         "Mode": 'self.attributes.get_mode(device["device_id"])',
         "Availability": 'self.online(device)',
-        "Connectivity": "self.online(device)",
-        "Weather": "self.weather.temperature(device)"}
+        "Connectivity": "self.online(device)"}
 
     # Session Data
     sess_id = None
@@ -72,15 +71,6 @@ class Data:
     s_last_update = datetime.datetime(2017, 1, 1, 12, 0, 0)
     s_file = False
     s_error_list = {}
-
-    # Weather data
-    w_last_update = datetime.datetime(2017, 1, 1, 12, 0, 0)
-    w_nodeid = ""
-    w_icon = ""
-    w_description = ""
-    w_interval_seconds = WEATHER_INTERVAL_DEFAULT
-    w_temperature_unit = ""
-    w_temperature_value = 0.00
 
     # Platform data
     p_minmax = {}

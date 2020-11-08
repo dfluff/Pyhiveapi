@@ -100,7 +100,7 @@ class HiveAuth(object):
     SMS_MFA_CHALLENGE = 'SMS_MFA'
 
     def __init__(self, username, password, pool_region=None, client_secret=None):
-        from . import get_message
+        from . import __get_message
         if pool_region is not None:
             raise ValueError("pool_region and client should not both be specified "
                              "(region should be passed to the boto3 client instead)")
@@ -110,12 +110,12 @@ class HiveAuth(object):
         self.password = password
         self.user_id = 'user_id'
         self.data = b'gAAAAABfjudE5I5RJNzHE0MBWWR0PJ6E3C9kijVSl-3-b8TV8KOdrOfGD0oI68xW0YDMxHa3kCupum9LXDgJFuoaPMXdXQ7poM97SP2xDvrAgGwqPAdUr15mYb3UAbeEXS8xGxgLxSd9DyN9xAoF1muK1JgeFaeaBwdl0872WdMTW2I_k4oDHDZpR43sQoD2_7mSjClw_vRO'
-        self.pool_id = get_message(self.data, 'JSON')["UPID"]
-        self.client_id = get_message(self.data, 'JSON')["CLIID"]
-        self.region = get_message(self.data, 'JSON')["REGION"]
+        self.__pool_id = __get_message(self.data, 'JSON')["UPID"]
+        self.__client_id = __get_message(self.data, 'JSON')["CLIID"]
+        self.__region = __get_message(self.data, 'JSON')["REGION"]
         self.client_secret = client_secret
         self.client = self.loop.run_in_executor(
-            None, boto3.client, 'cognito-idp', self.region)
+            None, boto3.client, 'cognito-idp', self.__region)
         self.big_n = hex_to_long(n_hex)
         self.g = hex_to_long(g_hex)
         self.k = hex_to_long(hex_hash('00' + n_hex + '0' + g_hex))
@@ -159,7 +159,7 @@ class HiveAuth(object):
         if u_value == 0:
             raise ValueError('U cannot be zero.')
         username_password = '%s%s:%s' % (
-            self.pool_id.split('_')[1], username, password)
+            self.__pool_id.split('_')[1], username, password)
         username_password_hash = hash_sha256(username_password.encode('utf-8'))
 
         x_value = hex_to_long(hex_hash(pad_hex(salt) + username_password_hash))
@@ -179,7 +179,7 @@ class HiveAuth(object):
         if self.client_secret is not None:
             auth_params.update({
                 "SECRET_HASH":
-                await self.get_secret_hash(self.username, self.client_id, self.client_secret)})
+                await self.get_secret_hash(self.username, self.__client_id, self.client_secret)})
         return auth_params
 
     @staticmethod
@@ -203,7 +203,7 @@ class HiveAuth(object):
                                                srp_b_hex,
                                                salt_hex)
         secret_block_bytes = base64.standard_b64decode(secret_block_b64)
-        msg = bytearray(self.pool_id.split('_')[1], 'utf-8') + bytearray(self.user_id, 'utf-8') + \
+        msg = bytearray(self.__pool_id.split('_')[1], 'utf-8') + bytearray(self.user_id, 'utf-8') + \
             bytearray(secret_block_bytes) + bytearray(timestamp, 'utf-8')
         hmac_obj = hmac.new(hkdf, msg, digestmod=hashlib.sha256)
         signature_string = base64.standard_b64encode(hmac_obj.digest())
@@ -214,7 +214,7 @@ class HiveAuth(object):
         if self.client_secret is not None:
             response.update({
                 "SECRET_HASH":
-                await self.get_secret_hash(self.username, self.client_id, self.client_secret)})
+                await self.get_secret_hash(self.username, self.__client_id, self.client_secret)})
 
         return response
 
@@ -232,7 +232,7 @@ class HiveAuth(object):
                                                        functools.partial(boto_client.initiate_auth,
                                                                          AuthFlow='USER_SRP_AUTH',
                                                                          AuthParameters=auth_params,
-                                                                         ClientId=self.client_id))
+                                                                         ClientId=self.__client_id))
         except botocore.exceptions.ClientError as err:
             if err.__class__.__name__ == "UserNotFoundException":
                 return "INVALID_USER"
@@ -246,7 +246,7 @@ class HiveAuth(object):
             try:
                 result = await self.loop.run_in_executor(None,
                                                          functools.partial(boto_client.respond_to_auth_challenge,
-                                                                           ClientId=self.client_id,
+                                                                           ClientId=self.__client_id,
                                                                            ChallengeName=self.PASSWORD_VERIFIER_CHALLENGE,
                                                                            ChallengeResponses=challenge_response))
             except botocore.exceptions.ClientError as err:
@@ -269,7 +269,7 @@ class HiveAuth(object):
         try:
             result = await self.loop.run_in_executor(None,
                                                      functools.partial(boto_client.respond_to_auth_challenge,
-                                                                       ClientId=self.client_id,
+                                                                       ClientId=self.__client_id,
                                                                        ChallengeName=self.SMS_MFA_CHALLENGE,
                                                                        Session=session,
                                                                        ChallengeResponses={

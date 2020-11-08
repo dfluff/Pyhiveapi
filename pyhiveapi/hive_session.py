@@ -147,10 +147,6 @@ class Session:
             ep = Data.s_last_update + Data.s_interval_seconds
             if datetime.now() >= ep:
                 await self.get_devices(device["hive_id"])
-
-            ep = Data.w_last_update + Data.w_interval_seconds
-            if datetime.now() >= ep:
-                await self.get_weather()
         except:
             updated = False
         finally:
@@ -211,36 +207,6 @@ class Session:
             self.api_lock.release()
 
         return get_nodes_successful
-
-    async def get_weather(self):
-        """Get latest weather data from Hive."""
-        get_weather_successful = False
-        current_time = datetime.now()
-
-        try:
-            if Data.s_tokens is not None and not Data.s_file:
-                await self.log.log("No_ID", self.type, "Getting Hive weather info.")
-                await self.hive_refresh_tokens()
-                weather_url = (
-                    "?postcode=" +
-                    Data.user.get("postcode", '') +
-                    "&country=" + Data.user.get("countryCode", '')
-                )
-
-                resp = await self.hive.get_weather(weather_url)
-                if resp["original"] == 200:
-                    Data.w_icon = resp["parsed"]["weather"]["icon"]
-                    Data.w_description = resp["parsed"]["weather"]["description"]
-                    Data.w_temperature_unit = resp["parsed"]["weather"]["temperature"]["unit"]
-                    Data.w_temperature_value = resp["parsed"]["weather"]["temperature"]["value"]
-                    Data.w_nodeid = "HiveWeather"
-                    Data.w_last_update = current_time
-                    get_weather_successful = True
-
-        except (IOError, RuntimeError, ZeroDivisionError):
-            get_weather_successful = False
-
-        return get_weather_successful
 
     @staticmethod
     async def p_minutes_to_time(minutes_to_convert):
@@ -342,7 +308,6 @@ class Session:
 
         try:
             await self.get_devices("No_ID")
-            await self.get_weather()
         except HTTPException:
             return HTTPException
 
@@ -461,12 +426,6 @@ class Session:
             await self.add_list("switch", a, hive_name=a["name"],
                                 ha_name=a["name"],
                                 hive_type="action")
-
-        if Data.w_nodeid == "HiveWeather":
-            await self.add_list("sensor", {}, hive_id=Data.w_nodeid,
-                                hive_name="Hive Weather",
-                                ha_name="Hive Weather",
-                                hive_type="Weather")
 
         await self.log.log("No_ID", self.type, "Hive component has initialised")
 
