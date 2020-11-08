@@ -54,8 +54,8 @@ class Action:
             final = data["enabled"]
             Data.NODES[device["hive_id"]]["State"] = final
             await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=final)
-            if device["hive_id"] in Data. s_error_list:
-                Data. s_error_list.pop(device["hive_id"])
+            if device["hive_id"] in Data.s_error_list:
+                Data.s_error_list.pop(device["hive_id"])
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 

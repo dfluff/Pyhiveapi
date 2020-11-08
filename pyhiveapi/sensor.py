@@ -23,7 +23,7 @@ class Sensor:
 
     async def get_sensor(self, device):
         await self.log.log(device["hive_id"], self.type, "Getting sensor data.")
-        online = await self.attributes.online_offline(device["hive_id"])
+        online = await self.attributes.online_offline(device.get('device_id', device["hive_id"]))
         error = await self.log.error_check(device["hive_id"], self.type, online)
 
         dev_data = {}
@@ -82,8 +82,8 @@ class Sensor:
                     state = data["props"]["motion"]["status"]
                 final = Data.HIVETOHA[self.type].get(state, state)
                 await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=final)
-                if device["hive_id"] in Data. s_error_list:
-                    Data. s_error_list.pop(device["hive_id"])
+                if device["hive_id"] in Data.s_error_list:
+                    Data.s_error_list.pop(device["hive_id"])
             await self.log.error_check(device["hive_id"], "Extra", online)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
@@ -106,8 +106,7 @@ class Sensor:
             await self.log.error_check(device["hive_id"], "Extra", state)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
-            if device["hive_id"] in Data. s_error_list:
-                Data. s_error_list.pop(device["hive_id"])
+
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 

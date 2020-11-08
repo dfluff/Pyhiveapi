@@ -47,8 +47,6 @@ class Attributes:
             state = data["props"]["online"]
             final = state
             Data.NODES[n_id]["Availabile"] = final
-            if n_id in Data. s_error_list:
-                Data. s_error_list.pop(n_id)
             await self.log.log(n_id, "Extra", "Is the device online -  {0}", info=final)
         else:
             await self.log.error_check(n_id, "ERROR", "Failed")
@@ -65,8 +63,8 @@ class Attributes:
             if online:
                 data = Data.products[n_id]
                 state = data["state"]["mode"]
-                if n_id in Data. s_error_list:
-                    Data. s_error_list.pop(n_id)
+                if n_id in Data.s_error_list:
+                    Data.s_error_list.pop(n_id)
             await self.log.error_check(n_id, self.type, state)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[n_id]["Device_Mode"] = final
@@ -87,8 +85,8 @@ class Attributes:
                 state = data["props"]["battery"]
                 final = state
                 Data.NODES[n_id]["BatteryLevel"] = final
-                if n_id in Data. s_error_list:
-                    Data. s_error_list.pop(n_id)
+                if n_id in Data.s_error_list:
+                    Data.s_error_list.pop(n_id)
             await self.log.error_check(n_id, self.type, state)
         else:
             await self.log.error_check(n_id, "ERROR", "Failed")
