@@ -87,7 +87,7 @@ class Session:
     async def hive_api_logon(self):
         """Log in to the Hive API and get the Session Data."""
 
-        if True in (Data.s_file, Data.s_token):
+        if Data.s_file:
             return None
         else:
             await self.log.log("No_ID", self.type, "Checking if login is required.")

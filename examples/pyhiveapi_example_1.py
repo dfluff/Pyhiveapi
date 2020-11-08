@@ -6,7 +6,6 @@ hotwater = Pyhiveapi.Hotwater()
 light = Pyhiveapi.Light()
 sensor = Pyhiveapi.Sensor()
 switch = Pyhiveapi.Switch()
-weather = Pyhiveapi.Weather()
 
 HiveUserName = "Your_Hive_UserName"
 HivePassword = "Your_Hive_Password"
@@ -92,11 +91,13 @@ else:
 
     if Heating_NodeID_SingleZone != "":
         print("Attempt to get heating current temperature")
-        Heating_Current = heating.current_temperature(Heating_NodeID_SingleZone)
+        Heating_Current = heating.current_temperature(
+            Heating_NodeID_SingleZone)
         print("Heating Current = " + str(Heating_Current))
 
         print("Attempt to get heating target temperature")
-        Heating_Target = heating.get_target_temperature(Heating_NodeID_SingleZone)
+        Heating_Target = heating.get_target_temperature(
+            Heating_NodeID_SingleZone)
         print("Heating Target = " + str(Heating_Target))
 
         print("Attempt to get heating mode")
@@ -113,13 +114,15 @@ else:
 
         print("")
         print("Attempt to set heating boost for 5 minutes at 17.5c")
-        Heating_Boost = heating.turn_boost_on(Heating_NodeID_SingleZone, 5, 17.5)
+        Heating_Boost = heating.turn_boost_on(
+            Heating_NodeID_SingleZone, 5, 17.5)
         print("Heating Boost On = " + str(Heating_Boost))
 
         print("")
 
         print("Attempt to get heating target temperature")
-        Heating_Target = heating.get_target_temperature(Heating_NodeID_SingleZone)
+        Heating_Target = heating.get_target_temperature(
+            Heating_NodeID_SingleZone)
         print("Heating Target = " + str(Heating_Target))
 
         print("Attempt to get heating boost")
@@ -134,20 +137,20 @@ else:
         )
 
     if Heating_NodeID_Zone_1 != "":
-        print("Attempt to get " + Heating_Name_Zone_1 + " heating current temperature")
+        print("Attempt to get " + Heating_Name_Zone_1 +
+              " heating current temperature")
         Heating_Current = heating.current_temperature(Heating_NodeID_Zone_1)
-        print("Heating " + Heating_Name_Zone_1 + " Current = " + str(Heating_Current))
+        print("Heating " + Heating_Name_Zone_1 +
+              " Current = " + str(Heating_Current))
 
     if Heating_NodeID_Zone_2 != "":
-        print("Attempt to get " + Heating_Name_Zone_2 + " heating current temperature")
+        print("Attempt to get " + Heating_Name_Zone_2 +
+              " heating current temperature")
         Heating_Current = heating.current_temperature(Heating_NodeID_Zone_2)
-        print("Heating " + Heating_Name_Zone_2 + " Current = " + str(Heating_Current))
+        print("Heating " + Heating_Name_Zone_2 +
+              " Current = " + str(Heating_Current))
 
     print("")
-
-    print("Attempt to get Outside temperature")
-    Weather_Temperature = weather.temperature()
-    print("Outside Temperature = " + str(Weather_Temperature))
 
     print("")
     print("Update Data")

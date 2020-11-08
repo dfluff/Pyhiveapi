@@ -72,21 +72,20 @@ class Logger:
         if error_type == False:
             message = "Device offline could not update entity - " + name
             result = True
-            if Data.s_file and n_id not in Data. s_error_list:
+            if n_id not in Data.s_error_list:
                 _LOGGER.warning(message)
                 Data. s_error_list.update({n_id: datetime.now()})
         elif error_type == "Failed":
             message = "ERROR - No data found for device - " + name
             result = True
-            if Data.s_file and n_id not in Data. s_error_list:
+            if n_id not in Data.s_error_list:
                 _LOGGER.error(message)
                 Data. s_error_list.update({n_id: datetime.now()})
         elif error_type == "Failed_API":
             new_data = str(kwargs.get("resp"))
             message = "ERROR - Received {0} response from API."
             result = True
-            if not Data.s_file:
-                _LOGGER.error(message.format(new_data))
+            _LOGGER.error(message.format(new_data))
 
         await self.log(n_id, n_type, message, info=new_data)
         return result

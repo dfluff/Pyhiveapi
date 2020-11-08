@@ -5,9 +5,6 @@ import datetime
 class Data:
     """Hive Data"""
 
-    NODE_INTERVAL_DEFAULT = 120
-    WEATHER_INTERVAL_DEFAULT = 600
-
     # API Data
     products = {}
     devices = {}
@@ -58,17 +55,12 @@ class Data:
         "Connectivity": "self.online(device)"}
 
     # Session Data
-    sess_id = None
-    s_token = False
+    s_tokens = {}
     s_token_update = datetime.datetime.now()
-    s_tokens = {}
+    s_last_update = datetime.datetime.now()
+    s_interval_seconds = datetime.timedelta(seconds=120)
     s_entity_update_flag = False
-    s_username = ""
-    s_password = ""
-    s_tokens = {}
-    s_interval_seconds = NODE_INTERVAL_DEFAULT
     s_sensors = False
-    s_last_update = datetime.datetime(2017, 1, 1, 12, 0, 0)
     s_file = False
     s_error_list = {}
 
