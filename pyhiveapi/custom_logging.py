@@ -74,13 +74,13 @@ class Logger:
             result = True
             if n_id not in Data.s_error_list:
                 _LOGGER.warning(message)
-                Data. s_error_list.update({n_id: datetime.now()})
+                Data.s_error_list.update({n_id: datetime.now()})
         elif error_type == "Failed":
             message = "ERROR - No data found for device - " + name
             result = True
             if n_id not in Data.s_error_list:
                 _LOGGER.error(message)
-                Data. s_error_list.update({n_id: datetime.now()})
+                Data.s_error_list.update({n_id: datetime.now()})
         elif error_type == "Failed_API":
             new_data = str(kwargs.get("resp"))
             message = "ERROR - Received {0} response from API."
