@@ -1,10 +1,11 @@
 """__init__.py"""
 from .const import *
+from .helper import Hive_Helper
+from .custom_logging import Logger
 from .hive_session import Session
 from .hive_auth import HiveAuth
 from .action import Action
 from .client import Client
-from .custom_logging import Logger
 from .hive_api import Hive
 from .device_attributes import Attributes
 from .heating import Heating
@@ -17,11 +18,10 @@ from .plug import Plug
 from .sensor import Sensor
 
 
-def __get_message(__message, __type):
+def get_message(__message, __type):
     """
     Gets a message
     """
-
     from cryptography.fernet import Fernet
     import os
     import json

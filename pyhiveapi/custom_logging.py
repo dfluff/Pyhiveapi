@@ -1,9 +1,9 @@
 """Custom Logging Module."""
 import logging
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from .hive_data import Data
-from.helper import Hive_Helper
+from .helper import Hive_Helper
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -13,7 +13,6 @@ class Logger:
 
     def __init__(self):
         """Logger Initialization"""
-        self.last_logged = None
 
     @staticmethod
     async def check_debuging(enable_debug: list):

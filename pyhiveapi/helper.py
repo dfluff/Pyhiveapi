@@ -27,3 +27,19 @@ class Hive_Helper:
             return "Hive"
         else:
             return 'UNKNOWN'
+
+    def device_recovered(n_id):
+        """"Register that a device has recovered from being offline."""
+        name = Hive_Helper.get_device_name(n_id)
+        if n_id in Data.s_error_list:
+            Data.s_error_list.pop(n_id)
+
+    def get_device_from_id(n_id):
+        """Get product/device data from ID"""
+        data = False
+        try:
+            data = Data.ha_devices[n_id]
+        except KeyError:
+            pass
+
+        return data

@@ -1,6 +1,5 @@
 """Hive Light Module."""
 import colorsys
-import asyncio
 from typing import Optional
 from aiohttp import ClientSession
 
@@ -9,6 +8,7 @@ from .hive_data import Data
 from .custom_logging import Logger
 from .device_attributes import Attributes
 from .hive_async_api import Hive_Async
+from .helper import Hive_Helper
 
 
 class Light:
@@ -25,11 +25,11 @@ class Light:
     async def get_light(self, device):
         """Get light data."""
         await self.log.log(device["hive_id"], self.type, "Getting light data.")
-        online = await self.attr.online_offline(device["hive_id"])
-        error = await self.log.error_check(device["hive_id"], self.type, online)
-
+        online = await self.attr.online_offline(device["device_id"])
         dev_data = {}
-        if device["hive_id"] in Data.devices:
+
+        if device["hive_id"] in Data.devices and online or "state" not in device:
+            Hive_Helper.device_recovered(device["device_id"])
             data = Data.devices[device["hive_id"]]
             dev_data = {"hive_id": device["hive_id"],
                         "hive_name": device["hive_name"],
@@ -54,28 +54,24 @@ class Light:
             if device["hive_type"] == "colourtuneablelight":
                 dev_data.update({"hs_color": await self.get_color(device)})
 
-        if not error:
             await self.log.log(device["hive_id"], self.type,
-                               "Device update {0}", info=dev_data)
-
-        return dev_data
+                               "Device update {0}", info=Data.NODES[device['hive_id']])
+            Data.ha_devices.update({device['hive_id']: dev_data})
+            return dev_data
+        else:
+            await self.log.error_check(device["device_id"], "ERROR", online)
+            return device
 
     async def get_state(self, device):
         """Get light current state."""
         await self.log.log(device["hive_id"], "Extra", "Getting state")
-        online = await self.attr.online_offline(device["hive_id"])
-        state = None
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["state"]["status"]
-                await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=state)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = data["state"]["status"]
+            await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=state)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
         else:
@@ -86,20 +82,15 @@ class Light:
     async def get_brightness(self, device):
         """Get light current brightness."""
         await self.log.log(device["hive_id"], "Extra", "Getting brightness")
-        online = await self.attr.online_offline(device["hive_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["state"]["brightness"]
-                final = (state / 100) * 255
-                Data.NODES[device["hive_id"]]["Brightness"] = final
-                await self.log.log(device["hive_id"], "Extra", "Brightness is {0}", info=final)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = data["state"]["brightness"]
+            final = (state / 100) * 255
+            Data.NODES[device["hive_id"]]["Brightness"] = final
+            await self.log.log(device["hive_id"], "Extra", "Brightness is {0}", info=final)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 
@@ -108,21 +99,16 @@ class Light:
     async def get_min_color_temp(self, device):
         """Get light minimum color temperature."""
         await self.log.log(device["hive_id"], "Extra", "Getting min colour temperature")
-        online = await self.attr.online_offline(device["hive_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["props"]["colourTemperature"]["max"]
-                final = round((1 / state) * 1000000)
-                Data.NODES[device["hive_id"]]["Min_CT"] = final
-                await self.log.log(device["hive_id"], "Extra",
-                                   "Min colour temp is {0}", info=final)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = data["props"]["colourTemperature"]["max"]
+            final = round((1 / state) * 1000000)
+            Data.NODES[device["hive_id"]]["Min_CT"] = final
+            await self.log.log(device["hive_id"], "Extra",
+                               "Min colour temp is {0}", info=final)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 
@@ -131,21 +117,16 @@ class Light:
     async def get_max_color_temp(self, device):
         """Get light maximum color temperature."""
         await self.log.log(device["hive_id"], "Extra", "Getting max colour temperature")
-        online = await self.attr.online_offline(device["hive_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["props"]["colourTemperature"]["min"]
-                final = round((1 / state) * 1000000)
-                Data.NODES[device["hive_id"]]["Max_CT"] = final
-                await self.log.log(device["hive_id"], "Extra",
-                                   "Max colour temp is {0}", info=final)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = data["props"]["colourTemperature"]["min"]
+            final = round((1 / state) * 1000000)
+            Data.NODES[device["hive_id"]]["Max_CT"] = final
+            await self.log.log(device["hive_id"], "Extra",
+                               "Max colour temp is {0}", info=final)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 
@@ -154,21 +135,15 @@ class Light:
     async def get_color_temp(self, device):
         """Get light current color temperature."""
         await self.log.log(device["hive_id"], "Extra", "Getting colour temperature")
-        online = await self.attr.online_offline(device["hive_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["state"]["colourTemperature"]
-                final = round((1 / state) * 1000000)
-                Data.NODES[device["hive_id"]]["CT"] = final
-                await self.log.log(device["hive_id"], "Extra", "Colour temp is {0}", info=final)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
-
+            data = Data.products[device["hive_id"]]
+            state = data["state"]["colourTemperature"]
+            final = round((1 / state) * 1000000)
+            Data.NODES[device["hive_id"]]["CT"] = final
+            await self.log.log(device["hive_id"], "Extra", "Colour temp is {0}", info=final)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 
@@ -177,26 +152,21 @@ class Light:
     async def get_color(self, device):
         """Get light current colour"""
         await self.log.log(device["hive_id"], "Extra", "Getting colour info")
-        online = await self.attr.online_offline(device["hive_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = [
-                    (data["state"]["hue"]) / 360,
-                    (data["state"]["saturation"]) / 100,
-                    (data["state"]["value"]) / 100,
-                ]
-                final = tuple(
-                    int(i * 255)
-                    for i in colorsys.hsv_to_rgb(state[0], state[1], state[2])
-                )
-                Data.NODES[device["hive_id"]]["Colour"] = final
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = [
+                (data["state"]["hue"]) / 360,
+                (data["state"]["saturation"]) / 100,
+                (data["state"]["value"]) / 100,
+            ]
+            final = tuple(
+                int(i * 255)
+                for i in colorsys.hsv_to_rgb(state[0], state[1], state[2])
+            )
+            Data.NODES[device["hive_id"]]["Colour"] = final
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 

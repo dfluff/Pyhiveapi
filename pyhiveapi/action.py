@@ -1,5 +1,4 @@
 """Hive Action Module."""
-import asyncio
 from typing import Optional
 from aiohttp import ClientSession
 
@@ -27,7 +26,6 @@ class Action:
         dev_data = {}
 
         if device["hive_id"] in Data.actions:
-            data = Data.actions[device["hive_id"]]
             dev_data = {"hive_id": device["hive_id"],
                         "hive_name": device["hive_name"],
                         "hive_type": device["hive_type"],

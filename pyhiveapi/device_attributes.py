@@ -55,16 +55,12 @@ class Attributes:
 
     async def get_mode(self, n_id):
         """Get sensor mode."""
-        online = await self.online_offline(n_id)
         state = None
         final = None
 
         if n_id in Data.products:
-            if online:
-                data = Data.products[n_id]
-                state = data["state"]["mode"]
-                if n_id in Data.s_error_list:
-                    Data.s_error_list.pop(n_id)
+            data = Data.products[n_id]
+            state = data["state"]["mode"]
             await self.log.error_check(n_id, self.type, state)
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[n_id]["Device_Mode"] = final
@@ -75,18 +71,14 @@ class Attributes:
 
     async def battery(self, n_id):
         """Get device battery level."""
-        online = await self.online_offline(n_id)
         state = None
         final = None
 
         if n_id in Data.devices:
-            if online:
-                data = Data.devices[n_id]
-                state = data["props"]["battery"]
-                final = state
-                Data.NODES[n_id]["BatteryLevel"] = final
-                if n_id in Data.s_error_list:
-                    Data.s_error_list.pop(n_id)
+            data = Data.devices[n_id]
+            state = data["props"]["battery"]
+            final = state
+            Data.NODES[n_id]["BatteryLevel"] = final
             await self.log.error_check(n_id, self.type, state)
         else:
             await self.log.error_check(n_id, "ERROR", "Failed")

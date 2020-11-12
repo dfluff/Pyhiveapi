@@ -417,7 +417,7 @@
             "available": false,
             "upgrading": false
           },
-          "parent": "parent-0000-0000-0000-000000000003",
+          "parent": "heating-0000-0000-0000-000000000001",
           "capabilities": [
             "HOLIDAY_MODE",
             "BOOST",
@@ -428,7 +428,7 @@
           "pmz": "OK",
           "temperature": 21,
           "working": false,
-          "trvs": ["heating-0000-0000-0000-000000000003"],
+          "trvs": ["trv-0000-0000-0000-000000000001"],
           "previous": {
             "mode": "MANUAL",
             "target": 20.5
@@ -633,7 +633,7 @@
           },
           "autoBoost": "DISABLED",
           "autoBoostTarget": 22,
-          "zone": "parent-0000-0000-0000-000000000002"
+          "zone": "thermostat-0000-0000-0000-000000000001"
         }
       },
       {

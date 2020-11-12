@@ -1,5 +1,4 @@
 """Hive Switch Module."""
-import asyncio
 from typing import Optional
 from aiohttp import ClientSession
 
@@ -8,6 +7,7 @@ from .hive_data import Data
 from .custom_logging import Logger
 from .device_attributes import Attributes
 from .hive_async_api import Hive_Async
+from .helper import Hive_Helper
 
 
 class Plug():
@@ -24,11 +24,11 @@ class Plug():
     async def get_plug(self, device):
         """Get smart plug data."""
         await self.log.log(device["hive_id"], self.type, "Getting switch data.")
-        online = await self.attr.online_offline(device["hive_id"])
-        error = await self.log.error_check(device["hive_id"], self.type, online)
+        online = await self.attr.online_offline(device["device_id"])
 
         dev_data = {}
-        if device["hive_id"] in Data.devices:
+        if device["hive_id"] in Data.devices and online or "state" not in device:
+            Hive_Helper.device_recovered(device["device_id"])
             data = Data.devices[device["hive_id"]]
             dev_data = {"hive_id": device["hive_id"],
                         "hive_name": device["hive_name"],
@@ -46,27 +46,24 @@ class Plug():
                                                                        device["hive_type"])
                         }
 
-        if not error:
             await self.log.log(device["hive_id"], self.type,
-                               "Device update {0}", info=dev_data)
-
-        return dev_data
+                               "Device update {0}", info=Data.NODES[device["hive_id"]])
+            Data.ha_devices.update({device['hive_id']: dev_data})
+            return dev_data
+        else:
+            await self.log.error_check(device["device_id"], "ERROR", online)
+            return device
 
     async def get_state(self, device):
         """Get plug current state."""
         await self.log.log(device["hive_id"], "Extra", "Getting state of switch")
-        online = await self.attr.online_offline(device["hive_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["state"]["status"]
-                await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=state)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = data["state"]["status"]
+            await self.log.log(device["hive_id"], "Extra", "Status is {0}", info=state)
             final = Data.HIVETOHA["Switch"].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
         else:
@@ -77,19 +74,14 @@ class Plug():
     async def get_power_usage(self, device):
         """Get smart plug current power usage."""
         await self.log.log(device["hive_id"], "Extra", "Getting power consumption.")
-        online = await self.attr.online_offline(device["hive_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["props"]["powerConsumption"]
-                await self.log.log(device["hive_id"], "Extra",
-                                   "Power consumption is {0}", info=state)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = data["props"]["powerConsumption"]
+            await self.log.log(device["hive_id"], "Extra",
+                               "Power consumption is {0}", info=state)
             final = state
             Data.NODES[device["hive_id"]]["Power"] = final
         else:

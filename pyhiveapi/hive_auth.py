@@ -100,7 +100,7 @@ class HiveAuth(object):
     SMS_MFA_CHALLENGE = 'SMS_MFA'
 
     def __init__(self, username, password, pool_region=None, client_secret=None):
-        from . import __get_message
+        from . import get_message
         if pool_region is not None:
             raise ValueError("pool_region and client should not both be specified "
                              "(region should be passed to the boto3 client instead)")
@@ -110,9 +110,9 @@ class HiveAuth(object):
         self.password = password
         self.user_id = 'user_id'
         self.data = b'gAAAAABfjudE5I5RJNzHE0MBWWR0PJ6E3C9kijVSl-3-b8TV8KOdrOfGD0oI68xW0YDMxHa3kCupum9LXDgJFuoaPMXdXQ7poM97SP2xDvrAgGwqPAdUr15mYb3UAbeEXS8xGxgLxSd9DyN9xAoF1muK1JgeFaeaBwdl0872WdMTW2I_k4oDHDZpR43sQoD2_7mSjClw_vRO'
-        self.__pool_id = __get_message(self.data, 'JSON')["UPID"]
-        self.__client_id = __get_message(self.data, 'JSON')["CLIID"]
-        self.__region = __get_message(self.data, 'JSON')["REGION"]
+        self.__pool_id = get_message(self.data, 'JSON')["UPID"]
+        self.__client_id = get_message(self.data, 'JSON')["CLIID"]
+        self.__region = get_message(self.data, 'JSON')["REGION"]
         self.client_secret = client_secret
         self.client = self.loop.run_in_executor(
             None, boto3.client, 'cognito-idp', self.__region)

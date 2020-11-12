@@ -52,7 +52,9 @@ class Session:
                 formatted_data = {"hive_id": data.get("id", ""),
                                   "hive_name": data.get("state", {}).get("name", ""),
                                   "hive_type": data.get("type", ""),
-                                  "ha_type": name
+                                  "ha_type": name,
+                                  "device_data": data.get("props", None),
+                                  "parent_device": data.get("parent", None)
                                   }
                 if kwargs.get("ha_name", "FALSE")[0] == " ":
                     kwargs["ha_name"] = data.get("state", {}).get(
@@ -219,7 +221,7 @@ class Session:
         return converted_time_string
 
     @staticmethod
-    async def p_get_schedule_nnl(self, hive_api_schedule):
+    async def p_get_schedule_nnl(hive_api_schedule):
         """Get the schedule now, next and later of a given nodes schedule."""
         schedule_now_and_next = {}
         date_time_now = datetime.now()
@@ -249,7 +251,7 @@ class Session:
                 current_slot_custom = current_day_schedule_sorted[current_slot]
 
                 slot_date = datetime.now() + timedelta(days=day_index)
-                slot_time = await self.p_minutes_to_time(
+                slot_time = await Session.p_minutes_to_time(
                     current_slot_custom["start"])
                 slot_time_date_s = slot_date.strftime(
                     "%d-%m-%Y") + " " + slot_time
@@ -347,6 +349,8 @@ class Session:
                                 device_id = device["id"]
                                 device_name = device["state"]["name"]
                                 break
+                        elif p["type"] == 'trvcontrol':
+                            device_id = p["props"]["trvs"][0]
                     except:
                         pass
                 Data.MODE.append(p["id"])

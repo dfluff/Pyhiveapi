@@ -1,5 +1,4 @@
 """"Hive Hotwater Module. """
-import asyncio
 from typing import Optional
 from aiohttp import ClientSession
 
@@ -8,6 +7,7 @@ from .hive_data import Data
 from .custom_logging import Logger
 from .device_attributes import Attributes
 from .hive_async_api import Hive_Async
+from .helper import Hive_Helper
 
 
 class Hotwater:
@@ -25,10 +25,10 @@ class Hotwater:
         """Get light data."""
         await self.log.log(device["hive_id"], self.type, "Getting hot water data.")
         online = await self.attr.online_offline(device["device_id"])
-        error = await self.log.error_check(device["hive_id"], self.type, online)
-
         dev_data = {}
-        if device["device_id"] in Data.devices:
+
+        if device["device_id"] in Data.devices and online or "state" not in device:
+            Hive_Helper.device_recovered(device["device_id"])
             data = Data.devices[device["device_id"]]
             dev_data = {"hive_id": device["hive_id"],
                         "hive_name": device["hive_name"],
@@ -41,35 +41,31 @@ class Hotwater:
                         "device_data": data.get("props", None),
                         "parent_device": data.get("parent", None),
                         "custom": device.get("custom", None),
-                        "attributes": await self.attr.state_attributes(device["hive_id"],
+                        "attributes": await self.attr.state_attributes(device["device_id"],
                                                                        device["hive_type"])
                         }
 
-        if not error:
             await self.log.log(device["hive_id"], self.type,
-                               "Device update {0}", info=dev_data)
-
-        return dev_data
+                               "Device update {0}", info=Data.NODES[device['hive_id']])
+            Data.ha_devices.update({device['hive_id']: dev_data})
+            return dev_data
+        else:
+            await self.log.error_check(device["device_id"], "ERROR", online)
+            return device
 
     async def get_mode(self, device):
         """Get hotwater current mode."""
         await self.log.log(device["hive_id"], "Extra", "Getting mode")
-        online = await self.attr.online_offline(device["device_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["state"]["mode"]
-                if state == "BOOST":
-                    state = data["props"]["previous"]["mode"]
-                final = Data.HIVETOHA[self.type].get(state, state)
-                await self.log.log(device["hive_id"], "Extra", "Mode is {0}", info=final)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = data["state"]["mode"]
+            if state == "BOOST":
+                state = data["props"]["previous"]["mode"]
             final = Data.HIVETOHA[self.type].get(state, state)
+            await self.log.log(device["hive_id"], "Extra", "Mode is {0}", info=final)
             Data.NODES[device["hive_id"]]["Mode"] = final
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
@@ -84,20 +80,14 @@ class Hotwater:
     async def get_boost(self, device):
         """Get hot water current boost status."""
         await self.log.log(device["hive_id"], "Extra", "Getting boost")
-        online = await self.attr.online_offline(device["device_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["state"]["boost"]
-                final = Data.HIVETOHA["Boost"].get(state, "ON")
-                await self.log.log(device["hive_id"], "Extra", "Boost is {0}", info=final)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = data["state"]["boost"]
             final = Data.HIVETOHA["Boost"].get(state, "ON")
+            await self.log.log(device["hive_id"], "Extra", "Boost is {0}", info=final)
             Data.NODES[device["hive_id"]]["Boost"] = final
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
@@ -106,53 +96,40 @@ class Hotwater:
 
     async def get_boost_time(self, device):
         """Get hotwater boost time remaining."""
-        online = None
         state = None
+        final = None
         if await self.get_boost(device["hive_id"]) == "ON":
             await self.log.log(device["hive_id"], "Extra", "Getting boost time")
-            online = await self.attr.online_offline(device["device_id"])
-
-        final = None
-
-        if device["hive_id"] in Data.products:
-            if online:
+            if device["hive_id"] in Data.products:
                 data = Data.products[device["hive_id"]]
                 state = data["state"]["boost"]
                 await self.log.log(device["hive_id"], "Extra",
                                    "Boost time is {0}", info=state)
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
-            final = state
-            Data.NODES[device["hive_id"]]["Boost_Time"] = final
-        else:
-            await self.log.error_check(device["hive_id"], "ERROR", "Failed")
+                final = state
+                Data.NODES[device["hive_id"]]["Boost_Time"] = final
+            else:
+                await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 
         return final if final is None else Data.NODES[device["hive_id"]]["Boost_Time"]
 
     async def get_state(self, device):
         """Get hot water current state."""
         await self.log.log(device["hive_id"], "Extra", "Getting state")
-        online = await self.attr.online_offline(device["device_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
-            if online:
-                data = Data.products[device["hive_id"]]
-                state = data["state"]["status"]
-                mode_current = await self.get_mode(device["hive_id"])
-                if mode_current == "SCHEDULE":
-                    if await self.get_boost(device["hive_id"]) == "ON":
-                        state = "ON"
-                    else:
-                        snan = self.session.p_get_schedule_nnl(
-                            data["state"]["schedule"]
-                        )
-                        state = snan["now"]["value"]["status"]
-                if device["hive_id"] in Data.s_error_list:
-                    Data.s_error_list.pop(device["hive_id"])
-            await self.log.error_check(device["hive_id"], "Extra", online)
+            data = Data.products[device["hive_id"]]
+            state = data["state"]["status"]
+            mode_current = await self.get_mode(device)
+            if mode_current == "SCHEDULE":
+                if await self.get_boost(device) == "ON":
+                    state = "ON"
+                else:
+                    snan = await self.session.p_get_schedule_nnl(
+                        data["state"]["schedule"])
+                    state = snan["now"]["value"]["status"]
+
             final = Data.HIVETOHA[self.type].get(state, state)
             Data.NODES[device["hive_id"]]["State"] = final
         else:
@@ -163,23 +140,19 @@ class Hotwater:
     async def get_schedule_now_next_later(self, device):
         """Hive get hotwater schedule now, next and later."""
         await self.log.log(device["hive_id"], "Extra", "Getting schedule info.")
-        online = await self.attr.online_offline(device["device_id"])
         state = None
         final = None
 
         if device["hive_id"] in Data.products:
             await self.session.hive_refresh_tokens()
             mode_current = await self.get_mode(device)
-            if not online and mode_current == "SCHEDULE":
+            if mode_current == "SCHEDULE":
                 data = Data.products[device["hive_id"]]
-                state = self.session.p_get_schedule_nnl(
+                state = await self.session.p_get_schedule_nnl(
                     data["state"]["schedule"])
-                final = state
-                Data.NODES[device["hive_id"]]["snnl"] = final
-                await self.log.log(device["hive_id"], "Extra", "Schedule is {0}", info=final)
-            await self.log.error_check(device["hive_id"], "Extra", online)
-            if device["hive_id"] in Data.s_error_list:
-                Data.s_error_list.pop(device["hive_id"])
+            final = state
+            Data.NODES[device["hive_id"]]["snnl"] = final
+            await self.log.log(device["hive_id"], "Extra", "Schedule is {0}", info=final)
         else:
             await self.log.error_check(device["hive_id"], "ERROR", "Failed")
 

@@ -10,6 +10,7 @@ class Data:
     devices = {}
     actions = {}
     user = {}
+    ha_devices = {}
     NODES = {"Preheader": {"Header": "HeaderText"}}
     MODE = []
     BATTERY = []

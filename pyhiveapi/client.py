@@ -15,4 +15,4 @@ class Client:  # pylint: disable=too-few-public-methods
 
     def __init__(self, session: Optional[ClientSession] = None,):
         """Initialize."""
-        Data.client = Hive_Async(session)
+        client = Hive_Async(session)
