@@ -37,9 +37,11 @@ class Action:
                         "custom": device.get("custom", None)
                         }
 
-        await self.log.log(device["hive_id"], self.type,
-                           "action update {0}", info=dev_data)
-        return dev_data
+            await self.log.log(device["hive_id"], self.type,
+                               "action update {0}", info=dev_data)
+            return dev_data
+        else:
+            return device
 
     async def get_state(self, device):
         """Get action state."""

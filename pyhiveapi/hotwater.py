@@ -98,7 +98,7 @@ class Hotwater:
         """Get hotwater boost time remaining."""
         state = None
         final = None
-        if await self.get_boost(device["hive_id"]) == "ON":
+        if await self.get_boost(device) == "ON":
             await self.log.log(device["hive_id"], "Extra", "Getting boost time")
             if device["hive_id"] in Data.products:
                 data = Data.products[device["hive_id"]]
